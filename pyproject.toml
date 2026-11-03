@@ -1,0 +1,23 @@
+[project]
+name = "p2p-process-intelligence"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "kh-abrar", email = "kh.abrarr@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=2.0.0",
+    "pm4py>=2.7.23.11",
+    "polars>=2.1.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[project.scripts]
+p2p-process-intelligence = "p2p_process_intelligence:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
