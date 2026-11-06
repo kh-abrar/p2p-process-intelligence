@@ -5,3 +5,5 @@ data/interim/
 *.csv.gz
 .venv/
 __pycache__/
+
+mining/outputs/
