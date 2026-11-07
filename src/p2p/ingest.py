@@ -1,6 +1,7 @@
 import gzip
 import io
 from pathlib import Path
+
 import polars as pl
 
 RAW = Path("data/raw/BPI_Challenge_2019.csv.gz")

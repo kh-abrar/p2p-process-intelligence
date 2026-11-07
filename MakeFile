@@ -1,0 +1,13 @@
+.PHONY: all ingest test lint
+
+all: ingest
+
+ingest:
+	uv run python src/p2p/ingest.py
+	uv run python src/p2p/clean.py
+
+test:
+	uv run pytest
+
+lint:
+	uv run ruff check .

@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import polars as pl
 
 IN = Path("data/interim/events.parquet")
