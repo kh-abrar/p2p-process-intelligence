@@ -273,8 +273,10 @@ def page_cycle_time() -> None:
             "when the invoice was booked first."
         )
     st.dataframe(ph, hide_index=True, column_config={
+        "phase": "Phase",
         "median_days": st.column_config.NumberColumn("Median (days)", format="%.1f"),
         "p90_days": st.column_config.NumberColumn("P90 (days)", format="%.1f"),
+        "items": st.column_config.NumberColumn("Items", format="localized"),
     })
 
     st.subheader("Distribution by item category")
@@ -400,13 +402,18 @@ def page_rework() -> None:
         "The gap compares medians of items with and without each activity. It is an association: harder orders "
         f"may attract both rework and delay. Activities with fewer than {q.MIN_N} items show no gap."
     )
-    st.dataframe(rt, hide_index=True, column_config={
+    gap_text = rt.with_columns(  # DR-4: say why there is no gap instead of showing None
+        pl.col("gap_days")
+        .map_elements(lambda g: f"{g:+.1f}", return_dtype=pl.String)
+        .fill_null(f"n < {q.MIN_N}")
+    )
+    st.dataframe(gap_text, hide_index=True, column_config={
         "activity": "Rework activity",
         "items_with": st.column_config.NumberColumn("Items with it", format="localized"),
         "share": st.column_config.NumberColumn("Share of items", format="percent"),
         "median_with": st.column_config.NumberColumn("Median with (days)", format="%.1f"),
         "median_without": st.column_config.NumberColumn("Median without (days)", format="%.1f"),
-        "gap_days": st.column_config.NumberColumn("Associated gap (days)", format="%+.1f"),
+        "gap_days": st.column_config.TextColumn("Associated gap (days)"),
     })
 
     st.subheader("Touchless against rework items")

@@ -1,74 +1,106 @@
 # Purchase-to-Pay Process Intelligence
 
-Where does a large company's purchase-to-payment process lose time and break its own rules, and what redesign would fix it, by how much? This project answers that with process mining on a real purchase-order event log, from as-is models to a simulated to-be process.
+**Where does a large company's purchase-to-payment process lose time and break its own rules, and which change would fix it, by how much?**
+Process mining on 1.6 million real purchase-order events (BPI Challenge 2019), from cleaned data and as-is models to KPIs, a data warehouse, a dashboard and a simulated to-be process.
 
-## Findings
+**Read first:** [two-page executive memo](memo.pdf) · [cohort findings](mining/notes/04-cohort-findings.md) · [simulation](impact/README.md) · [comparison with published reports](mining/notes/06-comparison-with-published-reports.md)
 
-All figures use POs created January to July 2018 (see data limits below). Findings 1 and 3 cover the main category, "3-way match, invoice before GR"; finding 2 covers cleared items in both 3-way categories.
+![Dashboard overview: eight KPIs against their targets with monthly trend lines](docs/images/dashboard-overview.png)
 
-1. **Invoices recorded before the goods arrive: 9.1%.** 11,815 of 129,244 items had the invoice receipt booked before the goods receipt, which weakens the three-way-match control.
-2. **Rework adds about 18 days.** Cleared items with any rework take a median of 91.0 days from PO to clearing, against 73.4 days for touchless items (+17.6 days). 36% of cleared items need some rework. Quantity changes go with +21.8 days; payment-block removal, on about a quarter of items, with +14.0 days. These are associations, not proven causes.
-3. **Order to payment takes a median of 79.3 days (P90 129.1).** 46.1 of those days (58%) come after the invoice receipt is recorded. Payment terms are a likely reason, but the log has no payment-term field, so this is a hypothesis.
+## Key findings
 
-**Redesign (simulated):** preventing half of the payment blocks would cut the median by about 1.3 days (95% interval 1.0 to 1.9) and raise touchless items by 11 points. Preventing half of the order-side rework as well cuts 2.4 days (2.0 to 3.0). The time gains are small because payment follows a due date counted from the vendor invoice; the main benefit is less rework and a closed control gap. Details: [`impact/README.md`](impact/README.md).
+Main flow "3-way match, invoice before goods receipt" (88% of items); POs created January to July 2018 (see [data limits](#data-and-limits)).
 
-Details: [`mining/notes/04-cohort-findings.md`](mining/notes/04-cohort-findings.md) and [`mining/notes/05-conformance.md`](mining/notes/05-conformance.md).
-
-**Status: complete (November 2026).** Executive summary for the process owner: [`memo.pdf`](memo.pdf). Comparison with the published challenge reports: [note 06](mining/notes/06-comparison-with-published-reports.md).
-
-## Data
-
-[BPI Challenge 2019](https://icpmconference.org/2019/?p=302): purchase-order handling data from a Dutch multinational in coatings and paints. 1,595,923 events, 251,734 cases, 42 activities. A case is one purchase-order line item. Items follow one of four flows: 3-way match with invoice before goods receipt (88% of cases), 3-way match with invoice after goods receipt, 2-way match, and consignment.
-
-- Original dataset: van Dongen, B.F. (2019). BPI Challenge 2019. 4TU.ResearchData. [doi:10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1](https://doi.org/10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1)
-- Copy used here: a third-party CSV conversion of the log, obtained from the `jadzoghaib/processlens` GitHub release `dataset-v1` because data.4tu.nl timed out during setup. Checksum and details are in [`data/SOURCE.md`](data/SOURCE.md). The data itself is not in this repository.
-
-Known data limits (details in [`mining/notes/`](mining/notes/)):
-
-- **Clearing is cut off.** Clearing and invoice-receipt events stop in January 2019, although other events run to April 2020. Items ordered late in 2018 had no time to clear, so cycle-time, clearing and rework figures use a cohort of POs created January to July 2018 (155,761 items). Compliance measures that do not need clearing use all items.
-- Three activities (vendor invoice, vendor debit memo, purchase requisition) carry date-only timestamps, so durations touching them are in days and same-day ordering needs a tie-break.
-- 100 events have impossible dates (e.g. 1948) and are flagged and excluded from durations.
-- Setting a payment block is rarely logged, so block rates rest on removals.
-- In "invoice after GR", 14.1% of cohort items were received but never invoiced in the log. The share rises for later months (12.2% to 19.3%), so it is partly truncation and is not counted as a finding.
-
-## Questions
-
-1. How long does an item take from PO creation to cleared invoice, per category (median and 90th percentile), and where does the waiting happen?
-2. How often is an invoice received before the goods receipt, or created before the PO exists?
-3. How much rework (price and quantity changes, cancellations, payment blocks) occurs, and how much time does it add?
-4. What share of items run from order to payment untouched?
-5. Which process change would help most, and by how much (simulated, with an interval)?
-
-The full problem statement is in [`brief/brief.md`](brief/brief.md).
-
-## Project layout and status
-
-| Folder | Content | Status |
+| | Finding | Evidence |
 | --- | --- | --- |
-| `brief/` | One-page problem statement | Done |
-| `bpmn/` | As-is and to-be BPMN models of the main category (Camunda Modeler), with PNG previews | Done |
-| `mining/` | Exploration, variants, censoring, cohort metrics, conformance; findings in [`mining/notes/`](mining/notes/) | Done |
-| `model/` | ER diagram and DuckDB star schema, with tests | Done ([`model/README.md`](model/README.md)) |
-| `kpis/` | Catalogue of 8 KPIs with baselines, owners and targets | Done ([`kpis/catalogue.md`](kpis/catalogue.md)) |
-| `requirements/` | Dashboard requirements spec and user stories | Done ([spec](requirements/dashboard_requirements.md), [stories](requirements/user_stories.md)) |
-| `app/` | Streamlit dashboard on the warehouse | Done: 7 pages (`make app`) |
-| `src/p2p/` | Ingest, cleaning, KPIs, warehouse build, dashboard queries, simulation | Done, tested in `tests/` |
-| `impact/` | To-be BPMN and SimPy what-if simulation | Done ([`impact/README.md`](impact/README.md)) |
-| `memo.pdf` | Two-page executive memo (source: `memo/memo.html`) | Done ([`memo.pdf`](memo.pdf)) |
+| 1 | **Paying suppliers takes a median 79.3 days** (one in ten over 129 days). 58% of it (46.1 days) comes after the invoice is booked; 91% of items are paid more than two weeks after both goods and invoice are in. | Payment timing, likely payment terms, sets the cycle time (a hypothesis: the log has no terms field). |
+| 2 | **The three-way-match control leaks:** 9.1% of items (11,815 of 129,244) had the invoice booked before the goods receipt. | One supplier accounts for 18% of these, ten suppliers for 46%. |
+| 3 | **Rework is common and goes with about 18 extra days:** 91.0 against 73.4 days median; 36% of paid items have a price or quantity change, cancellation or payment block. | Association, not proven cause. Quantity changes go with +21.8 days; payment-block removals, on 28% of items, with +14.0 days. |
+| 4 | **But removing rework buys little time.** In a validated simulation, preventing half the payment blocks saves 1.3 days at the median (95% interval 1.0 to 1.9) and lifts untouched items from 64% to 75%; with half the order rework also prevented, 2.4 days (2.0 to 3.0). | The payment due date absorbs most order-side delay. The value of fixing rework is effort and control, not speed. |
 
-## Progress
+## What's in the repository
 
-- **Week 1 (done):** ingest and cleaning with data tests, exploration, variant analysis, first as-is BPMN for the main category.
-- **Week 2 (done):** found the January 2019 clearing cut-off and moved time metrics to a January to July 2018 cohort; cycle time per category, invoice-before-goods-receipt rate, rework gaps and touchless share; conformance checking of the as-is model (91.6% of finished cases fit after a same-day tie-break fix and allowing deletion after order confirmation).
-- **Week 3 (done):**
-  - KPI catalogue done: 8 KPIs with formulas, owners, cohort baselines, monthly ranges and assumed targets, computed by `src/p2p/kpis.py` and pinned by tests.
-  - DuckDB star schema done: 2 fact tables (events, items) and 6 dimensions, KPI views in SQL that match the Python baselines, ER diagram in `model/README.md`.
-  - Dashboard requirements done: users, data rules, 24 functional and 7 non-functional requirements, 14 user stories with acceptance criteria.
-  - Streamlit dashboard done: Overview, Cycle time, Compliance, Rework, Process, Item detail and Data notes pages on the warehouse, with the query layer and every page tested.
-  - To-be BPMN and SimPy simulation done: preventing half of payment blocks cuts the median by 1.3 days (95% interval 1.0 to 1.9) and lifts touchless items by 11 points; both changes together cut 2.4 days (2.0 to 3.0). Gains are small because payment follows a due date counted from the vendor invoice.
-  - Executive memo done: two pages for the process owner with findings, three recommended changes with simulated effects, limits and four decisions requested.
-  - Compared with five published challenge reports (both winners): headline numbers agree; this project differs in handling the January 2019 clearing cut-off with a cohort and in simulating the redesign (note 06).
-- **Possible extensions:** compliance per item type and amount matching between invoice and goods receipt (as in two of the published reports); payment-term data to test the payment-timing explanation; staffing data to add Accounts Payable capacity to the simulation.
+| Deliverable | Where | Highlights |
+| --- | --- | --- |
+| Problem brief | [`brief/brief.md`](brief/brief.md) | Process owner, five questions, scope, known limits |
+| Process mining | [`mining/`](mining/), notes [01](mining/notes/01-exploration.md) to [06](mining/notes/06-comparison-with-published-reports.md) | Variants, right-censoring check, cohort metrics, token-replay conformance (91.6% of finished cases fit) |
+| BPMN models | [`bpmn/`](bpmn/) | As-is and to-be models (Camunda Modeler / bpmn-js), with PNG previews |
+| KPI catalogue | [`kpis/catalogue.md`](kpis/catalogue.md) | 8 KPIs with formula, owner, baseline, monthly range and target |
+| Data warehouse | [`model/`](model/README.md) | DuckDB star schema: 2 fact tables, 6 dimensions, KPI views in SQL; ER diagram |
+| Requirements | [`requirements/`](requirements/dashboard_requirements.md) | Users, data rules, 24 functional and 7 non-functional requirements, [14 user stories](requirements/user_stories.md) |
+| Dashboard | [`app/app.py`](app/app.py) | Streamlit, 7 pages, filters, drill-down to single items, CSV export |
+| What-if simulation | [`impact/README.md`](impact/README.md) | SimPy model built from observed items, validated against reality, paired 95% intervals |
+| Executive memo | [`memo.pdf`](memo.pdf) | Two pages for the process owner, with four decisions requested |
+| Tests | [`tests/`](tests/) | 54 tests: data, KPIs, warehouse, dashboard queries and pages, simulation |
+
+## Dashboard
+
+Built on the warehouse; every number matches the SQL KPI view (checked by tests). Each page states the cohort and that group differences are associations.
+
+| | |
+| --- | --- |
+| ![Cycle time page: median days per phase and distribution by item category](docs/images/dashboard-cycle-time.png) | ![Compliance page: invoice-before-goods-receipt rate, monthly trend and how early invoices were booked](docs/images/dashboard-compliance.png) |
+| **Cycle time.** Where the time goes: 10 days to goods receipt, 46 days from invoice booking to payment. | **Compliance.** Early invoice bookings and invoices dated before the PO, by month, supplier and spend area, with the item list behind each figure. |
+| ![Rework page: touchless and rework KPIs and the cycle-time gap per rework type](docs/images/dashboard-rework.png) | ![Item detail page: one item's status, flags and event timeline by lane](docs/images/dashboard-item-detail.png) |
+| **Rework.** Touchless share, rework per 100 items, and the associated gap per rework type. | **Item detail.** Any item's events in order, with date-only and suspect timestamps marked. |
+
+Also included: a **Process** page (top variants, conformance results and the BPMN model) and a **Data notes** page (limits, citation, warehouse build info).
+
+## Process models
+
+**As-is** (main flow, lanes Purchasing, Vendor, Warehouse, Accounts Payable):
+
+![As-is BPMN model of the main purchase-to-pay flow](bpmn/asis_3way_invoice_before_gr_preview.png)
+
+**To-be**, with three changes: a mandatory order confirmation with price and quantity check; invoice booking only after goods receipt; automatic matching with tolerance and payment on the due date:
+
+![To-be BPMN model with the three proposed changes annotated](bpmn/tobe_3way_invoice_before_gr_preview.png)
+
+## How it works
+
+```mermaid
+flowchart LR
+    raw[(Event log CSV<br/>1.6M events)] --> ingest[ingest + clean<br/>flags, sort order]
+    ingest --> mining[mining scripts<br/>variants, cohort,<br/>conformance]
+    ingest --> kpis[KPI baselines]
+    mining --> wh[(DuckDB<br/>star schema)]
+    ingest --> wh
+    wh --> app[Streamlit<br/>dashboard]
+    wh --> sim[SimPy<br/>what-if]
+    mining --> notes[analysis notes]
+    kpis --> memo[executive memo]
+    sim --> memo
+    notes --> memo
+```
+
+Method choices that matter:
+
+- **Censoring-aware cohort.** Clearing events stop in January 2019, so items ordered late in 2018 look faster than they are. Time and rework measures use POs created January to July 2018 rather than dropping open cases ([note 03](mining/notes/03-censoring.md)).
+- **Conformance on a variant-level log** with token-based replay, after fixing a same-day ordering artefact of date-only timestamps ([note 05](mining/notes/05-conformance.md)).
+- **Simulation that reproduces reality first.** Two simpler model structures were rejected because they overstated the 90th percentile by 12 days; the final one matches it within 0.1 day ([impact](impact/README.md)).
+- **Checked against the field.** Headline numbers agree with five published challenge reports, including both winners, within a few days or points ([note 06](mining/notes/06-comparison-with-published-reports.md)).
+
+## Questions answered
+
+| Question (from the [brief](brief/brief.md)) | Answer |
+| --- | --- |
+| 1. How long from PO to cleared invoice, and where is the wait? | Median 79.3 days, P90 129.1 (main flow); 58% after the invoice is booked |
+| 2. How often is the invoice early, or before the PO? | 9.1% booked before the goods receipt; 1.7% of vendor invoices dated before the PO |
+| 3. How much rework, and what does it add? | 36% of paid items; associated with +17.6 days at the median |
+| 4. What share runs untouched? | 63.7% of paid three-way-match items |
+| 5. Which change helps most, by how much? | Preventing payment blocks: 1.3 days (1.0 to 1.9) for half the blocks, +11 points untouched |
+
+## Data and limits
+
+[BPI Challenge 2019](https://icpmconference.org/2019/?p=302): purchase-order handling at a Dutch multinational in coatings and paints. 1,595,923 events, 251,734 PO line items (cases), 42 activities, four item flows.
+
+- **Source:** van Dongen, B.F. (2019). BPI Challenge 2019. 4TU.ResearchData. [doi:10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1](https://doi.org/10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1). This project used a third-party CSV conversion because data.4tu.nl timed out; checksum and details in [`data/SOURCE.md`](data/SOURCE.md). The data is not in this repository.
+- **Clearing is cut off** in January 2019 while other events run to April 2020; hence the January to July 2018 cohort (155,761 items) for time, clearing and rework measures.
+- **Date-only timestamps** for vendor invoice, debit memo and requisition (durations in days; same-day ordering needs a tie-break).
+- **100 events with impossible dates** (e.g. 1948) are flagged and excluded from durations.
+- **Payment blocks:** setting a block is rarely logged (124 events against 57,136 removals), so removals stand in.
+- **"Received, never invoiced"** in the invoice-after-goods-receipt flow (14.1%) rises for later months, so it is partly truncation and not reported as a finding.
+- **Anonymised:** suppliers, users and companies are IDs; KPI targets are proposals, not company policy.
 
 ## Reproduce
 
@@ -82,8 +114,6 @@ make all        # the whole pipeline below, in order (about 6 minutes)
 make app        # dashboard at http://localhost:8501
 make test lint  # 54 tests (data tests skip without the data) and ruff
 ```
-
-The pipeline steps can also be run one by one:
 
 | Target | Does | Output (git-ignored) |
 | --- | --- | --- |
@@ -101,20 +131,18 @@ The memo PDF is printed from `memo/memo.html` with headless Chrome (A4, no heade
 
 ## Stack
 
-Python 3.12, uv, pm4py, polars, DuckDB, SimPy, Streamlit, Plotly, Camunda Modeler / bpmn-js, pytest, ruff.
+Python 3.12 · uv · pm4py · polars · DuckDB · SimPy · Streamlit · Plotly · Camunda Modeler / bpmn-js · pytest · ruff
 
 ## References
 
-- van Dongen, B.F. (2019). BPI Challenge 2019. 4TU.ResearchData. doi:10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1 (data used here from a third-party CSV mirror because data.4tu.nl timed out; see [`data/SOURCE.md`](data/SOURCE.md))
-- BPI Challenge 2019 page: https://icpmconference.org/2019/?p=302
-- Gutermuth, Lahann, Rehse, Scheid, Schuhmann, Stephan, Fettke. *Efficient and Compliant Purchase Order Handling: A Contribution to BPI Challenge 2019.* doi:10.22028/D291-34142
+- van Dongen, B.F. (2019). BPI Challenge 2019. 4TU.ResearchData. doi:10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1
+- BPI Challenge 2019 page, with all submitted reports: https://icpmconference.org/2019/?p=302
 - Diba, Remy, Pufahl. *Compliance and Performance Analysis of Procurement Processes Using Process Mining.* BPI Challenge 2019 (overall winner).
 - Meyer zu Wickern, Juluru, Roy, Nguyen, Vu. *Analysis and prediction of purchasing compliance using process mining.* BPI Challenge 2019 (student winner).
+- Gutermuth, Lahann, Rehse, Scheid, Schuhmann, Stephan, Fettke. *Efficient and Compliant Purchase Order Handling: A Contribution to BPI Challenge 2019.* doi:10.22028/D291-34142
 - van Dyk, Aklecha, Kennes, Ramezani. *Dissecting the Purchase-to-Pay Process: An exercise in Process Mining.* BPI Challenge 2019.
 - Porter, Masse, Visatemongkolchai, Seneviratne, Deokule, Hartman. *Balancing Efficiency and Risk in Procure to Pay.* BPI Challenge 2019.
 
-The challenge reports are linked from the challenge page. My findings agree with them within a few days or points; the comparison and what this project adds (a censoring-aware cohort and a what-if simulation) are in [`mining/notes/06-comparison-with-published-reports.md`](mining/notes/06-comparison-with-published-reports.md).
+## Author and licence
 
-## Licence
-
-See [`LICENSE`](LICENSE) for this repository's own code. It depends on [pm4py](https://pm4py.fit.fraunhofer.de/), which is licensed under the GNU AGPL v3. The pm4py package is not included here; it is installed by `uv sync`. Anyone redistributing or offering this project as a network service together with pm4py should check the AGPL v3 terms.
+Khandaker Abrar Yasir, November 2026. Code licensed as in [`LICENSE`](LICENSE). This project depends on [pm4py](https://pm4py.fit.fraunhofer.de/), licensed under the GNU AGPL v3; pm4py is not included here but installed by `uv sync`. Anyone redistributing or offering this project as a network service together with pm4py should check the AGPL v3 terms.
