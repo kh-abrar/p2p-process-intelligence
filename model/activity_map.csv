@@ -1,0 +1,43 @@
+activity,lane,stage,is_rework,is_modelled
+SRM: Created,SRM system,requisition,false,false
+SRM: Complete,SRM system,requisition,false,false
+SRM: Awaiting Approval,SRM system,requisition,false,false
+SRM: Document Completed,SRM system,requisition,false,false
+SRM: In Transfer to Execution Syst.,SRM system,requisition,false,false
+SRM: Ordered,SRM system,requisition,false,false
+SRM: Change was Transmitted,SRM system,requisition,false,false
+SRM: Deleted,SRM system,requisition,false,false
+SRM: Transfer Failed (E.Sys.),SRM system,requisition,false,false
+SRM: Transaction Completed,SRM system,requisition,false,false
+SRM: Incomplete,SRM system,requisition,false,false
+SRM: Held,SRM system,requisition,false,false
+Create Purchase Requisition Item,Purchasing,requisition,false,true
+Release Purchase Requisition,Purchasing,requisition,false,false
+Create Purchase Order Item,Purchasing,order,false,true
+Release Purchase Order,Purchasing,order,false,false
+Change Approval for Purchase Order,Purchasing,order,false,false
+Receive Order Confirmation,Purchasing,order,false,true
+Update Order Confirmation,Purchasing,order,false,false
+Block Purchase Order Item,Purchasing,order,false,false
+Reactivate Purchase Order Item,Purchasing,order,false,false
+Delete Purchase Order Item,Purchasing,order,false,true
+Change Price,Purchasing,change,true,false
+Change Quantity,Purchasing,change,true,false
+Change Currency,Purchasing,change,false,false
+Change Delivery Indicator,Purchasing,change,false,false
+Change Storage Location,Purchasing,change,false,false
+Change Final Invoice Indicator,Purchasing,change,false,false
+Change Rejection Indicator,Purchasing,change,false,false
+Change payment term,Purchasing,change,false,false
+Vendor creates invoice,Vendor,invoice,false,true
+Vendor creates debit memo,Vendor,invoice,false,false
+Record Goods Receipt,Warehouse,receipt,false,true
+Cancel Goods Receipt,Warehouse,receipt,true,false
+Record Service Entry Sheet,Warehouse,receipt,false,false
+Record Invoice Receipt,Accounts Payable,invoice,false,true
+Cancel Invoice Receipt,Accounts Payable,invoice,true,false
+Record Subsequent Invoice,Accounts Payable,invoice,false,false
+Cancel Subsequent Invoice,Accounts Payable,invoice,false,false
+Set Payment Block,Accounts Payable,payment,true,false
+Remove Payment Block,Accounts Payable,payment,true,true
+Clear Invoice,Accounts Payable,payment,false,true

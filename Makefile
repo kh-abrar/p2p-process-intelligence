@@ -1,6 +1,7 @@
-.PHONY: all ingest test lint mining
+.PHONY: all ingest test lint mining kpis warehouse simulate app
 
-all: ingest
+# full pipeline: data -> analysis -> KPIs -> warehouse -> simulation
+all: ingest mining kpis warehouse simulate
 
 ingest:
 	uv run python src/p2p/ingest.py
@@ -11,7 +12,22 @@ MINING = variants censoring throughput deviations open_and_rework uncleared_invo
 
 mining:
 	mkdir -p mining/outputs
-	@for s in $(MINING); do 		echo "== $$s"; 		PYTHONIOENCODING=utf-8 uv run python mining/$$s.py > mining/outputs/$$s.txt || exit 1; 	done
+	@for s in $(MINING); do \
+		echo "== $$s"; \
+		PYTHONIOENCODING=utf-8 uv run python mining/$$s.py > mining/outputs/$$s.txt || exit 1; \
+	done
+
+kpis:
+	PYTHONIOENCODING=utf-8 uv run python src/p2p/kpis.py
+
+warehouse:
+	uv run python src/p2p/warehouse.py
+
+simulate:
+	PYTHONIOENCODING=utf-8 uv run python src/p2p/simulation.py
+
+app:
+	uv run streamlit run app/app.py
 
 test:
 	uv run pytest

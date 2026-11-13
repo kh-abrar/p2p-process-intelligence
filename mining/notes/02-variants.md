@@ -70,6 +70,8 @@ Compliance deviations (invoice receipt before goods receipt, invoice before PO) 
 
 ## 6. Next steps
 
+*Update 2026-11-13: done; see notes 03 to 06, `kpis/catalogue.md` and `impact/README.md`.*
+
 1. Draw the model above in Camunda Modeler. Save as `bpmn/asis_3way_invoice_before_gr.bpmn` and export a PNG.
 2. Count how many cases follow the backbone, with and without the optional steps and the block removal.
 3. Quantify "invoice receipt before goods receipt" and "vendor invoice before PO" per category.

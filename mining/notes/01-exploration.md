@@ -86,6 +86,8 @@ Distribution of days before PO: median 0, 75th percentile 1, maximum 25,565 (the
 
 ## 8. Next steps
 
+*Update 2026-11-13: done; see notes 03 to 06, `kpis/catalogue.md` and `impact/README.md`.*
+
 1. Build the variant table per category (top variants and their share of cases).
 2. Draw the first as-is BPMN for "3-way match, invoice before GR" from the dominant variant.
 3. Count cases with no clearing event (open or incomplete).

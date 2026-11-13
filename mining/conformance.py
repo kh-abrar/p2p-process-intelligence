@@ -98,6 +98,24 @@ def summary(d: pl.DataFrame, label: str) -> None:
 summary(out, "all cases")
 summary(out.filter(pl.col("ended")), "cases that reach clearing or deletion")
 
+# rough classification of each variant (first matching rule wins); saved with the results
+acts = pl.col("variant").str.split(SEP)
+first_pos = lambda act: acts.list.eval(pl.element().index_of(act)).list.first()
+out = out.with_columns(
+    pl.when(pl.col("fit"))
+    .then(pl.lit("fits"))
+    .when(~pl.col("ended"))
+    .then(pl.lit("not finished"))
+    .when(acts.list.len() > acts.list.unique().list.len())
+    .then(pl.lit("repeated activity (GR, IR, clearing or block removal)"))
+    .when(first_pos(VI).is_not_null() & (first_pos(VI) < first_pos(PO)))
+    .then(pl.lit("vendor invoice before PO"))
+    .when(first_pos(IR).is_not_null() & (first_pos(VI).is_null() | (first_pos(IR) < first_pos(VI))))
+    .then(pl.lit("invoice receipt without preceding vendor invoice"))
+    .otherwise(pl.lit("other ordering or missing step"))
+    .alias("reason")
+)
+
 pl.Config.set_fmt_str_lengths(160)
 pl.Config.set_tbl_width_chars(260)
 print(out.filter(~pl.col("fit")).head(15).select("cases", "fitness", "missing", "remaining", "variant"))
@@ -108,30 +126,10 @@ finished_bad = out.filter(~pl.col("fit"), pl.col("ended"))
 print("finished but not fitting:", finished_bad["cases"].sum(), "cases,", finished_bad.height, "variants")
 print(finished_bad.head(20).select("cases", "fitness", "missing", "remaining", "variant"))
 
-# rough classification of the remaining deviations (first matching rule wins)
-acts = pl.col("variant").str.split(SEP)
-reason = (
-    finished_bad.with_columns(
-        acts.list.len().alias("n"),
-        acts.list.unique().list.len().alias("n_unique"),
-        acts.list.eval(pl.element().index_of(VI)).list.first().alias("i_vi"),
-        acts.list.eval(pl.element().index_of(PO)).list.first().alias("i_po"),
-        acts.list.eval(pl.element().index_of(IR)).list.first().alias("i_ir"),
-    )
-    .with_columns(
-        pl.when(pl.col("n") > pl.col("n_unique"))
-        .then(pl.lit("repeated activity (GR, IR, clearing or block removal)"))
-        .when(pl.col("i_vi").is_not_null() & (pl.col("i_vi") < pl.col("i_po")))
-        .then(pl.lit("vendor invoice before PO"))
-        .when(pl.col("i_ir").is_not_null() & (pl.col("i_vi").is_null() | (pl.col("i_ir") < pl.col("i_vi"))))
-        .then(pl.lit("invoice receipt without preceding vendor invoice"))
-        .otherwise(pl.lit("other ordering or missing step"))
-        .alias("reason")
-    )
-    .group_by("reason")
+print("\n== Remaining deviations, finished cases ==")
+print(
+    finished_bad.group_by("reason")
     .agg(pl.col("cases").sum(), pl.len().alias("variants"))
     .with_columns((pl.col("cases") / out.filter(pl.col("ended"))["cases"].sum()).round(4).alias("share_of_finished"))
     .sort("cases", descending=True)
 )
-print("\n== Remaining deviations, finished cases ==")
-print(reason)

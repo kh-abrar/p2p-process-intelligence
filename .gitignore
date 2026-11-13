@@ -7,3 +7,8 @@ data/interim/
 __pycache__/
 
 mining/outputs/
+kpis/outputs/
+data/warehouse/
+*.duckdb
+*.duckdb.wal
+impact/outputs/

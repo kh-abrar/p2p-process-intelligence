@@ -71,6 +71,8 @@ Share cleared among items with an invoice receipt, by month of the last invoice 
 Earlier I assumed that, because events run to April 2020, uncleared items were probably not still open. That was wrong for clearing events, which stop in January 2019.
 
 ## Next
+
+*Update 2026-11-13: done; see notes 04 to 06, `kpis/catalogue.md` and `impact/README.md`.*
 - Recompute throughput, rework gaps, touchless share and the invoice-before-goods-receipt rate for the January to July 2018 cohort (`mining/cohort_metrics.py`).
 - Update `brief/brief.md` and README limits.
 - Refine the as-is BPMN (delete after order confirmation) and fix the same-day tie-break in conformance.

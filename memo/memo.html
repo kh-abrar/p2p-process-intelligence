@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Purchase-to-Pay Memo</title>
+<style>
+  @page { size: A4; margin: 15mm 17mm 14mm 17mm; }
+  :root {
+    --ink: #1b1b1a; --ink-2: #4d4c48; --muted: #77756f; --rule: #d9d7d0;
+    --accent: #2a78d6; --accent-soft: #e8f1fc; --bg-soft: #f6f5f2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--ink); }
+  body { font: 9.6pt/1.42 "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  h1 { font-size: 15.5pt; line-height: 1.2; margin: 0 0 3pt; letter-spacing: -0.2pt; }
+  h2 { font-size: 10.6pt; margin: 11pt 0 4pt; padding-bottom: 2pt; border-bottom: 1px solid var(--rule); }
+  p { margin: 0 0 5pt; }
+  ul, ol { margin: 0 0 5pt; padding-left: 14pt; }
+  li { margin: 0 0 2.5pt; }
+  .meta { display: grid; grid-template-columns: 52pt 1fr; gap: 1pt 6pt; font-size: 8.8pt; color: var(--ink-2);
+          padding: 6pt 0 7pt; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); margin: 6pt 0 8pt; }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .kicker { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.8pt; color: var(--accent); font-weight: 700; }
+  .bottom { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 7pt 9pt 3pt; margin: 4pt 0 2pt; }
+  .bottom li { margin-bottom: 3.5pt; }
+  .num { font-weight: 700; font-variant-numeric: tabular-nums; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 3pt 0 5pt; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--ink); padding: 3pt 4pt; }
+  td { border-bottom: 1px solid var(--rule); padding: 3pt 4pt; vertical-align: top; }
+  td.r, th.r { text-align: right; white-space: nowrap; }
+  .figure { margin: 4pt 0 2pt; break-inside: avoid; }
+  table, .two, .ask { break-inside: avoid; }
+  .caption { font-size: 7.8pt; color: var(--muted); margin-top: 1pt; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14pt; }
+  .ask { border: 1px solid var(--ink); padding: 6pt 9pt 2pt; margin-top: 4pt; }
+  .ask ol { padding-left: 13pt; }
+  .small { font-size: 8pt; color: var(--ink-2); }
+  .foot { font-size: 7.4pt; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 4pt; margin-top: 8pt; }
+  .page-break { break-before: page; }
+  svg text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="kicker">Executive memo · Procure-to-pay</div>
+<h1>Paying suppliers takes 79 days; rework and blocks cost effort more than time</h1>
+<div class="meta">
+  <b>To</b><span>Head of Procurement Operations</span>
+  <b>From</b><span>Khandaker Abrar Yasir, process analyst</span>
+  <b>Date</b><span>13 November 2026</span>
+  <b>Basis</b><span>Purchase-order event log (BPI Challenge 2019): 251,734 PO line items, 1.6 million events. Time figures use POs created January to July 2018, because clearing data stops in January 2019.</span>
+</div>
+
+<div class="bottom">
+  <ol>
+    <li><b>The process is slow mainly because of when invoices are paid, not how they are processed.</b> An item takes a median <span class="num">79.3 days</span> from order to payment (one in ten takes over <span class="num">129 days</span>). <span class="num">58%</span> of that time comes after the invoice is booked; 91% of items are paid more than two weeks after both goods and invoice are in.</li>
+    <li><b>The three-way-match control leaks.</b> <span class="num">9.1%</span> of items (11,815 of 129,244) had the invoice booked before the goods were received. One supplier accounts for 18% of these; ten suppliers for 46%.</li>
+    <li><b>Rework is common but buys little time when removed.</b> 36% of paid items had a price or quantity change, a cancellation or a payment block, and they took about <span class="num">18 days</span> longer. A simulation shows that halving payment blocks saves only <span class="num">1.3 days</span> at the median, yet raises the share of untouched items from 64% to 75%.</li>
+  </ol>
+</div>
+
+<h2>What the data shows</h2>
+<p>Main flow, "3-way match, invoice before goods receipt" (88% of items), paid items; the rework rows cover both three-way-match flows.</p>
+<table>
+  <thead><tr><th>Measure</th><th class="r">Value</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td>Order to payment, median / 90th percentile</td><td class="r">79.3 / 129.1 d</td><td>Target set at 73 / 122 d (the level of items with no rework)</td></tr>
+    <tr><td>Order to goods receipt</td><td class="r">10.0 d</td><td>Fast; not where the time goes</td></tr>
+    <tr><td>Invoice booked to payment</td><td class="r">46.1 d</td><td>Most likely payment terms; the log has no terms field to confirm it</td></tr>
+    <tr><td>Items paid without any rework</td><td class="r">63.7%</td><td>Rework items: 91.0 d median against 73.4 d (association, not proven cause)</td></tr>
+    <tr><td>Items with a payment block removed</td><td class="r">27.8%</td><td>Associated with +14.0 d; one supplier has 56% of its items blocked</td></tr>
+    <tr><td>Items with a quantity change</td><td class="r">7.4%</td><td>Associated with +21.8 d, the largest gap per item</td></tr>
+    <tr><td>Vendor invoice dated before the PO</td><td class="r">1.7%</td><td>Orders raised after the fact (3,618 items over the whole log)</td></tr>
+  </tbody>
+</table>
+<p>Packaging, the largest spend area (60,000 items), stands out: median <span class="num">100 days</span> to payment against 56 for Sales, and 31% of items blocked. The model of the standard flow fits <span class="num">92%</span> of completed items; most of the rest have repeated goods receipts or invoices (partial deliveries).</p>
+
+<h2>Recommended changes</h2>
+<p>A to-be process was drawn and three changes tested in a simulation built from the observed items (500,000 simulated items per scenario; 95% intervals in brackets). The simulated as-is process reproduces the real 90th percentile within 0.1 day and the median within 1.5 days.</p>
+
+<div class="figure">
+<svg viewBox="0 0 640 196" width="100%" role="img" aria-label="Days saved at the median by scenario, with 95% intervals">
+  <!-- scale: x = 260 + days * 80 ; 0 to 3.5 days -->
+  <g font-size="10.5" fill="#4d4c48">
+    <text x="0" y="14" font-weight="600" fill="#1b1b1a" font-size="11.5">Median days saved, order to payment (95% interval)</text>
+  </g>
+  <g stroke="#e6e4de" stroke-width="1">
+    <line x1="260" y1="30" x2="260" y2="166" /><line x1="340" y1="30" x2="340" y2="166" />
+    <line x1="420" y1="30" x2="420" y2="166" /><line x1="500" y1="30" x2="500" y2="166" />
+  </g>
+  <g font-size="9.5" fill="#77756f" text-anchor="middle">
+    <text x="260" y="182">0</text><text x="340" y="182">1</text><text x="420" y="182">2</text><text x="500" y="182">3 days</text>
+  </g>
+  <!-- S2 -->
+  <g>
+    <text x="0" y="56" font-size="10.5" fill="#1b1b1a" font-weight="600">Prevent payment blocks</text>
+    <text x="0" y="69" font-size="9" fill="#77756f">half of blocks avoided · +11 pts untouched</text>
+    <rect x="260" y="46" width="104" height="18" rx="4" fill="#2a78d6" />
+    <line x1="340" y1="55" x2="412" y2="55" stroke="#1b1b1a" stroke-width="1.5" />
+    <line x1="340" y1="50" x2="340" y2="60" stroke="#1b1b1a" stroke-width="1.5" />
+    <line x1="412" y1="50" x2="412" y2="60" stroke="#1b1b1a" stroke-width="1.5" />
+    <text x="420" y="59" font-size="10" fill="#1b1b1a"><tspan font-weight="700">1.3</tspan> <tspan fill="#77756f">[1.0–1.9]</tspan></text>
+  </g>
+  <!-- S1 -->
+  <g>
+    <text x="0" y="100" font-size="10.5" fill="#1b1b1a" font-weight="600">Right-first-time orders</text>
+    <text x="0" y="113" font-size="9" fill="#77756f">half of price/quantity rework avoided · +4 pts</text>
+    <rect x="260" y="90" width="72" height="18" rx="4" fill="#2a78d6" />
+    <line x1="284" y1="99" x2="388" y2="99" stroke="#1b1b1a" stroke-width="1.5" />
+    <line x1="284" y1="94" x2="284" y2="104" stroke="#1b1b1a" stroke-width="1.5" />
+    <line x1="388" y1="94" x2="388" y2="104" stroke="#1b1b1a" stroke-width="1.5" />
+    <text x="396" y="103" font-size="10" fill="#1b1b1a"><tspan font-weight="700">0.9</tspan> <tspan fill="#77756f">[0.3–1.6]</tspan></text>
+  </g>
+  <!-- S3 -->
+  <g>
+    <text x="0" y="144" font-size="10.5" fill="#1b1b1a" font-weight="600">Both together</text>
+    <text x="0" y="157" font-size="9" fill="#77756f">+17 pts untouched (64% to 81%)</text>
+    <rect x="260" y="134" width="192" height="18" rx="4" fill="#2a78d6" />
+    <line x1="420" y1="143" x2="500" y2="143" stroke="#1b1b1a" stroke-width="1.5" />
+    <line x1="420" y1="138" x2="420" y2="148" stroke="#1b1b1a" stroke-width="1.5" />
+    <line x1="500" y1="138" x2="500" y2="148" stroke="#1b1b1a" stroke-width="1.5" />
+    <text x="508" y="147" font-size="10" fill="#1b1b1a"><tspan font-weight="700">2.4</tspan> <tspan fill="#77756f">[2.0–3.0]</tspan></text>
+  </g>
+</svg>
+<div class="caption">Simulated, main flow. Bars: mean of 50 replications; whiskers: 95% interval. "Untouched": share of items with no rework or block. Reductions of 25% and 75% keep the same ranking.</div>
+</div>
+
+<table>
+  <thead><tr><th>Change</th><th>What it fixes</th><th class="r">Median</th><th class="r">90th pct.</th><th class="r">Untouched</th></tr></thead>
+  <tbody>
+    <tr><td><b>1. Tolerance-based automatic matching</b>; block only real mismatches; start with the ten suppliers that hold 37% of blocks</td><td>Payment blocks (27.8% of items)</td><td class="r">−1.3 d<br><span class="small">[−1.9, −1.0]</span></td><td class="r">−1.9 d</td><td class="r">+11.2 pts</td></tr>
+    <tr><td><b>2. Mandatory order confirmation</b> with a price and quantity check before goods and invoice arrive</td><td>Price and quantity changes after the fact</td><td class="r">−0.9 d<br><span class="small">[−1.6, −0.3]</span></td><td class="r">−1.5 d</td><td class="r">+4.0 pts</td></tr>
+    <tr><td><b>3. Book invoices only after the goods receipt</b> (system control)</td><td>Control leak (9.1% of items)</td><td class="r" colspan="3">Closes the leak by design; assumed time-neutral</td></tr>
+  </tbody>
+</table>
+
+<div class="two">
+  <div>
+    <h2>What this does not promise</h2>
+    <ul>
+      <li><b>Large time savings.</b> Payment timing sets the cycle time. Cutting it means changing payment terms or payment runs, a finance decision outside this review.</li>
+      <li><b>Proven effects.</b> The simulation assumes an item that avoids rework behaves like today's items without it. Harder orders may attract both rework and delay, so the savings are an upper bound for a given reduction.</li>
+      <li><b>The 50% reductions.</b> These are assumptions. A pilot must measure how many blocks and changes the new checks prevent.</li>
+      <li><b>Workload.</b> Fewer blocks and changes free Accounts Payable and Purchasing effort, but the log has no staffing data, so this is not quantified.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Data caveats</h2>
+    <ul>
+      <li>Clearing events stop in January 2019, so time figures use POs from January to July 2018.</li>
+      <li>Vendor-invoice dates carry no time of day; 100 events with impossible dates are excluded.</li>
+      <li>Setting a payment block is rarely logged; removals stand in for blocks.</li>
+      <li>Data is anonymised; targets are proposals, not company policy.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ask">
+  <h2 style="margin-top:0;border:none;padding:0">Decisions requested</h2>
+  <ol>
+    <li><b>Approve a three-month pilot of tolerance-based matching</b> with the ten suppliers that hold 37% of payment blocks, measuring block rate (K8) and untouched rate (K6) monthly on the dashboard.</li>
+    <li><b>Ask IT to enforce goods receipt before invoice booking</b> for this flow, starting with the supplier behind 18% of early bookings.</li>
+    <li><b>Agree the KPI targets</b> in the catalogue (e.g. median 73 days, early bookings ≤ 5.5%, blocks ≤ 25%) as the baseline for the pilot.</li>
+    <li><b>Share payment-term data</b> with the analysis team, so the 46-day wait after invoice booking can be explained and, if useful, discussed with Finance.</li>
+  </ol>
+</div>
+
+<div class="foot">
+  Data: van Dongen, B.F. (2019). BPI Challenge 2019. 4TU.ResearchData. doi:10.4121/uuid:d06aff4b-79f0-45e6-8ec8-e19730c248f1 (used via a third-party CSV copy).
+  Methods and reproducible code: repository <i>p2p-process-intelligence</i>: mining/notes/03 to 05 (censoring, cohort findings, conformance), kpis/catalogue.md, impact/README.md (simulation), app/ (dashboard).
+</div>
+
+</body>
+</html>
