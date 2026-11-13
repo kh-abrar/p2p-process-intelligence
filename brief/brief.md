@@ -20,9 +20,11 @@ Purchase orders should flow in a line: order, goods receipt, invoice, payment. I
 - **Out of scope:** prices, spend and vendor negotiation; real costs and financial value of delays; anything outside the log.
 
 ## Known limits
-- Three activities carry date-only timestamps (vendor invoice, vendor debit memo, purchase requisition), so durations touching them are in days.
+- Three activities carry date-only timestamps (vendor invoice, vendor debit memo, purchase requisition), so durations touching them are in days. On a shared day their placeholder time (23:59 or 00:00) can misorder them against timed events.
 - Setting a payment block is rarely logged (124 events versus 57,136 removals), so block rates rest on removals.
-- Some cases have no clearing event: consignment by design, others deleted, still open or paid outside the log.
+- Clearing and invoice-receipt events stop in January 2019 (right-censoring), although other events run to April 2020. Cycle-time, clearing and rework figures therefore use a cohort of POs created January to July 2018 (155,761 items, about six months of follow-up or more). Compliance measures that do not depend on clearing can use all items.
+- Some cases have no clearing event: consignment by design, others deleted, still open at the cut, or paid outside the log.
+- In "invoice after GR", 14.1% of cohort items have a goods receipt but no invoice. The share rises for later PO months (12.2% for January, 19.3% for July 2018), so it is partly a truncation effect and is not reported as a finding.
 - Data is anonymised and there is no written policy to test against. The compliance rules used are the ones named in this brief.
 - 100 events with impossible dates are flagged and excluded from duration calculations.
 
